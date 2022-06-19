@@ -5,7 +5,7 @@ Loads changes in the database with the required frequency:
 - Ads;
 - And other settings.
 # Purpose
-To answer the question: how much has the effectiveness of the advertising company changed after making changes.
+To answer the question: how much has changed the effectiveness of the advertising company after making changes (A/B testing).
 # Development plan
 Implement data update (primary load is implemented)
 # How users can start working with the project
