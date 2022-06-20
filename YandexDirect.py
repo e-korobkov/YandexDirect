@@ -1920,6 +1920,73 @@ def _get_ad_id(**kwargs):
 		)
 
 
+def _delete_files(**kwargs):
+	del_list = list()
+
+	date_xcom = kwargs['ti'].xcom_pull(
+		task_ids='ch_campaigns.update_data.ad_update.get_ad_update',
+		key="ads")
+	if date_xcom is not None:
+		del_list.append(date_xcom.get('file_name', None))
+
+	date_xcom = kwargs['ti'].xcom_pull(
+		task_ids='ch_campaigns.update_data.ad_update.separate_ad_update_data',
+		key="update_ads")
+	if date_xcom is not None:
+		del_list.append(date_xcom.get('file_name', None))
+
+	date_xcom = kwargs['ti'].xcom_pull(
+		task_ids='ch_campaigns.update_data.adgroup_update.get_adgroup_update',
+		key="adgroups")
+	if date_xcom is not None:
+		del_list.append(date_xcom.get('file_name', None))
+
+	date_xcom = kwargs['ti'].xcom_pull(
+		task_ids='ch_campaigns.update_data.adgroup_update.separate_adgroups_update_data',
+		key="update_adgroups")
+	if date_xcom is not None:
+		del_list.append(date_xcom.get('file_name', None))
+
+	date_xcom = kwargs['ti'].xcom_pull(
+		task_ids='ch_campaigns.update_data.campaigns_update.get_changed_campaigns',
+		key="campaigns")
+	if date_xcom is not None:
+		del_list.append(date_xcom.get('file_name', None))
+
+	date_xcom = kwargs['ti'].xcom_pull(
+		task_ids='ch_campaigns.update_data.campaigns_update.separate_changed_campaigns',
+		key="update_campaigns")
+	if date_xcom is not None:
+		del_list.append(date_xcom.get('file_name', None))
+
+	date_xcom = kwargs['ti'].xcom_pull(
+		task_ids='ch_campaigns.update_data.check_campaigns',
+		key="checkCampaigns")
+	if date_xcom is not None:
+		del_list.append(date_xcom.get('file_name', None))
+
+	date_xcom = kwargs['ti'].xcom_pull(
+		task_ids='ch_campaigns.update_data.pre_processing_check_campaigns',
+		key="Check")
+	if date_xcom is not None:
+		del_list.append(date_xcom.get('SELF', None))
+		del_list.append(date_xcom.get('CHILDREN', None))
+		del_list.append(date_xcom.get('STAT', None))
+
+	date_xcom = kwargs['ti'].xcom_pull(
+		task_ids='ch_campaigns.update_data.get_changed_children',
+		key="campaigns")
+	if date_xcom is not None:
+		del_list.append(date_xcom.get('file_name', None))
+
+	date_xcom = kwargs['ti'].xcom_pull(
+		task_ids='ch_campaigns.update_data.data_layout',
+		key="processing")
+	if date_xcom is not None:
+		del_list.append(date_xcom.get('AdIds', None))
+		del_list.append(date_xcom.get('AdGroupIds', None))
+
+	del_cycle(del_list)
 
 
 
@@ -2443,97 +2510,6 @@ def _delete_first_upload_files(**kwargs):
 	del_cycle(del_list)
 
 
-def _delete_files(**kwargs):
-	del_list = list()
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='check_campaigns', key="checkCampaigns")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='pre_processing_check_campaigns', key="Check")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('SELF', None))
-		del_list.append(date_xcom.get('CHILDREN', None))
-		del_list.append(date_xcom.get('STAT', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='get_changed_children_campaigns', key="campaigns")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='pre_processing_children_campaigns', key="processing")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('AdIds', None))
-		del_list.append(date_xcom.get('AdGroupIds', None))
-		del_list.append(date_xcom.get('CampaignId', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='audience_targets_update.get_audience_targets_update',
-									   key="AudienceTargets")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='audience_targets_update.separate_audience_update_data',
-									   key="audience_targets_update")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='keywords_update.get_keywords_update', key="keyword")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='keywords_update.separate_keywords_data_update', key="keyword_update")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='ad_extension_update.get_ad_extension_update', key="AdExtensions")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='ad_extension_update.separate_ad_extension_update_data',
-									   key="AdExtensions")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='site_links_set_update.get_site_links_set_update',
-									   key="SiteLinksSet")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='site_links_set_update.separate_site_links_set_update_data',
-									   key="SiteLinksSet")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='adgroup_update.get_adgroup_update', key="adgroups")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='adgroup_update.separate_adgroups_update_data', key="update_adgroups")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='ad_update.get_ad_update', key="ads")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='ad_update.separate_ad_update_data', key="update_ads")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='campaigns_update.get_changed_campaigns', key="campaigns")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='campaigns_update.separate_changed_campaigns', key="update_campaigns")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	date_xcom = kwargs['ti'].xcom_pull(task_ids='join_data', key="united_compaign")
-	if date_xcom is not None:
-		del_list.append(date_xcom.get('file_name', None))
-
-	del_cycle(del_list)
-
-
 def _create_pipeline(dag_, start_dt):
 	get_server_time = PythonOperator(
 		task_id='get_server_time',
@@ -2796,9 +2772,14 @@ def _create_pipeline(dag_, start_dt):
 				trigger_rule='none_failed',
 				dag=dag_)
 
+			delete_files = PythonOperator(
+				task_id='delete_files',
+				python_callable=_delete_files,
+				dag=dag_)
+
 			check_campaigns >> pre_processing_check_campaigns >> get_changed_children >> data_layout
 			data_layout >> [adgroup_update, ad_update] >> join_data
-			campaigns_update >> join_data
+			campaigns_update >> join_data >> delete_files
 
 		with TaskGroup("old_data", tooltip="Old data") as old_data:
 
@@ -2976,10 +2957,7 @@ def _create_pipeline(dag_, start_dt):
         python_callable=_update_server_time,
         dag=dag_)
 
-    delete_files = PythonOperator(
-        task_id='delete_files',
-        python_callable=_delete_files,
-        dag=dag_)
+
     """
 
 	# Блок функций первой загрузки
