@@ -3007,6 +3007,7 @@ with DAG(
 		# schedule_interval = '@daily',
 		# schedule_interval='@once',
 		schedule_interval='@hourly',
+		catchup=False,
 		start_date=start_date,
 		template_searchpath='opt/airflow/local_volume/',
 		render_template_as_native_obj=True) as dag:
