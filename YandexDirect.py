@@ -54,12 +54,13 @@ def get_conf():
 	return url, headers, p
 
 
-def request_error(log):
+def request_error(log, text_request):
 	if log.get('error', None) is None:
 		return log
 	else:
 		error_code = log.get('error').get('error_code')
 		error_string = log.get('error').get('error_string')
+		print(text_request)
 		raise AirflowBadRequest(f'Ошибка: {error_code}, описание: {error_string}')
 
 
@@ -280,7 +281,7 @@ def get_data_from_yandex(text_query, extention_url, request_metod, filename, fil
 		else:
 			get_logs = json.loads(response.text)
 			if response.status_code == 200:
-				get_logs = request_error(get_logs)
+				get_logs = request_error(get_logs, payload)
 				print(f'Старт записи {number}')
 
 				filename = f'{file_name_mask}{number}.json'
@@ -330,7 +331,7 @@ def _get_server_time(**kwargs):
 	else:
 		get_logs = json.loads(response.text)
 		if response.status_code == 200:
-			get_logs = request_error(get_logs)
+			get_logs = request_error(get_logs, payload)
 			server_time = pendulum.parse(get_logs['result'].get('Timestamp'), strict=True)
 			kwargs['task_instance'].xcom_push(
 				key='server_data',
@@ -416,7 +417,7 @@ def _get_ad_extension(**kwargs):
 	else:
 		get_logs = json.loads(response.text)
 		if response.status_code == 200:
-			get_logs = request_error(get_logs)
+			get_logs = request_error(get_logs, payload)
 			print("Старт записи AdExtension")
 			pathlib.Path(p).mkdir(parents=True, exist_ok=True)
 			filename = f'AdExtensions_{mask_file_name}.json'
@@ -490,7 +491,7 @@ def _get_site_links_set(**kwargs):
 	else:
 		get_logs = json.loads(response.text)
 		if response.status_code == 200:
-			get_logs = request_error(get_logs)
+			get_logs = request_error(get_logs, payload)
 			print("Старт записи Site Links Set")
 			pathlib.Path(p).mkdir(parents=True, exist_ok=True)
 			filename = f'SiteLinksSet_{mask_file_name}.json'
@@ -566,7 +567,7 @@ def _get_dictionaries(**kwargs):
 	else:
 		get_logs = json.loads(response.text)
 		if response.status_code == 200:
-			get_logs = request_error(get_logs)
+			get_logs = request_error(get_logs, payload)
 			pathlib.Path(p).mkdir(parents=True, exist_ok=True)
 			filename = f'dictionaries_{mask_file_name}.json'
 			with open(f'{p}/{filename}', 'w') as f:
@@ -669,7 +670,7 @@ def _get_campaigns(**kwargs):
 	else:
 		get_logs = json.loads(response.text)
 		if response.status_code == 200:
-			get_logs = request_error(get_logs)
+			get_logs = request_error(get_logs, payload)
 			print('Старт записи campaigns')
 			pathlib.Path(p).mkdir(parents=True, exist_ok=True)
 			filename = f'campaigns_{mask_file_name}.json'
@@ -1236,7 +1237,7 @@ def _check_campaigns(**kwargs):
 	else:
 		get_logs = json.loads(response.text)
 		if response.status_code == 200:
-			get_logs = request_error(get_logs)
+			get_logs = request_error(get_logs, payload)
 			filename = f'checkCampaigns_{response.headers.get("RequestId")}.json'
 			print('Старт записи checkCampaigns')
 			with open(f'{p}/{filename}', 'w') as f:
@@ -2391,7 +2392,7 @@ def _check_change_dictionaries(**kwargs):
 	else:
 		get_logs = json.loads(response.text)
 		if response.status_code == 200:
-			get_logs = request_error(get_logs)
+			get_logs = request_error(get_logs, payload)
 			kwargs['task_instance'].xcom_push(
 				key='change_dictionaries',
 				value={
