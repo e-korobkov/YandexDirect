@@ -1,0 +1,790 @@
+{
+  "SQL_Tables_Schema": {
+    "Campaigns":  {
+      "Id": "bigint",
+      "StartDate": "date",
+      "ServerDateTime": "timestamp",
+      "ClientInfo": "text",
+      "TimeZone": "text",
+      "Currency": "text",
+      "EndDate": "date",
+      "Name": "text",
+      "Type": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.BlockedIps": {
+      "CampaignsId": "bigint",
+      "Items": "text ARRAY",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.StatusPayment": {
+      "CampaignsId": "bigint",
+      "StatusPayment": "text",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "StartDate"
+        }
+      }
+    },
+    "Campaigns.SourceId": {
+      "CampaignsId": "bigint",
+      "SourceId": "numeric",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.DailyBudget": {
+      "CampaignsId": "bigint",
+      "Amount": "numeric",
+      "Mode": "text",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        },
+        "update": "yes"
+      }
+    },
+    "Campaigns.StatusClarification": {
+      "CampaignsId": "bigint",
+      "StatusClarification": "text",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.State": {
+      "CampaignsId": "bigint",
+      "State": "text",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.Status": {
+      "CampaignsId": "bigint",
+      "Status": "text",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.Notification.SmsSettings": {
+      "CampaignsId": "bigint",
+      "ServerDateTime": "timestamp",
+      "Events": "text ARRAY",
+      "TimeFrom": "time",
+      "TimeTo": "time",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.Notification.EmailSettings": {
+      "CampaignsId": "bigint",
+      "ServerDateTime": "timestamp",
+      "Email": "text",
+      "CheckPositionInterval": "integer",
+      "WarningBalance": "integer",
+      "SendAccountNews": "text",
+      "SendWarnings": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.RepresentedBy": {
+      "CampaignsId": "bigint",
+      "ServerDateTime": "timestamp",
+      "Agency": "text",
+      "Manager": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.Funds": {
+      "CampaignsId": "bigint",
+      "ServerDateTime": "timestamp",
+      "Mode": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.Funds.CampaignFunds": {
+      "CampaignsId": "bigint",
+      "ServerDateTime": "timestamp",
+      "Sum": "numeric",
+      "Balance": "numeric",
+      "BalanceBonus": "numeric",
+      "SumAvailableForTransfer": "numeric",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        },
+        "update": "yes"
+      }
+    },
+    "Campaigns.Funds.SharedAccountFunds": {
+      "CampaignsId": "bigint",
+      "ServerDateTime": "timestamp",
+      "Spend": "numeric",
+      "Refund": "numeric",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        },
+        "update": "yes"
+      }
+    },
+    "Campaigns.NegativeKeywords": {
+      "CampaignsId": "bigint",
+      "ServerDateTime": "timestamp",
+      "Items": "text ARRAY",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.ExcludedSites": {
+      "CampaignsId": "bigint",
+      "ServerDateTime": "timestamp",
+      "Items": "text ARRAY",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.Statistics": {
+      "CampaignsId": "bigint",
+      "ServerDateTime": "timestamp",
+      "Clicks": "numeric",
+      "Impressions": "numeric",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+},
+        "update": "yes"
+      }
+    },
+    "Campaigns.TimeTargeting": {
+      "CampaignsId": "bigint",
+      "ServerDateTime": "timestamp",
+      "ConsiderWorkingWeekends": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.TimeTargeting.Schedule": {
+      "CampaignsId": "bigint",
+      "ServerDateTime": "timestamp",
+      "Items": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\", \"Items\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.TimeTargeting.HolidaysSchedule": {
+      "CampaignsId": "bigint",
+      "ServerDateTime": "timestamp",
+      "SuspendOnHolidays": "text",
+      "BidPercent": "integer",
+      "StartHour": "integer",
+      "EndHour": "integer",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.TextCampaign.RelevantKeywords": {
+      "CampaignsId": "bigint",
+      "ServerDateTime": "timestamp",
+      "BudgetPercent": "integer",
+      "OptimizeGoalId": "numeric",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.TextCampaign.PriorityGoals": {
+      "CampaignsId": "bigint",
+      "GoalId": "numeric",
+      "Value": "numeric",
+      "IsMetrikaSourceOfValue": "text",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.TextCampaign.Settings": {
+      "CampaignsId": "bigint",
+      "Option": "text",
+      "Value": "text",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"Option\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.TextCampaign.BiddingStrategy": {
+      "CampaignsId": "bigint",
+      "ServerDateTime": "timestamp",
+      "Search.BiddingStrategyType": "text",
+      "Search.WbMaximumClicks.WeeklySpendLimit": "numeric",
+      "Search.WbMaximumClicks.BidCeiling": "numeric",
+      "Search.WbMaximumConversionRate.WeeklySpendLimit": "numeric",
+      "Search.WbMaximumConversionRate.BidCeiling": "numeric",
+      "Search.WbMaximumConversionRate.GoalId": "numeric",
+      "Search.AverageCpc.AverageCpc": "numeric",
+      "Search.AverageCpc.WeeklySpendLimit": "numeric",
+      "Search.AverageCpa.AverageCpa": "numeric",
+      "Search.AverageCpa.GoalId": "numeric",
+      "Search.AverageCpa.WeeklySpendLimit": "numeric",
+      "Search.AverageCpa.BidCeiling": "numeric",
+      "Search.AverageRoi.ReserveReturn": "numeric",
+      "Search.AverageRoi.RoiCoef": "numeric",
+      "Search.AverageRoi.GoalId": "numeric",
+      "Search.AverageRoi.WeeklySpendLimit": "numeric",
+      "Search.AverageRoi.BidCeiling": "numeric",
+      "Search.AverageRoi.Profitability": "numeric",
+      "Search.AverageCrr.Crr": "numeric",
+      "Search.AverageCrr.GoalId": "numeric",
+      "Search.AverageCrr.WeeklySpendLimit": "numeric",
+      "Search.PayForConversionCrr.Crr": "numeric",
+      "Search.PayForConversionCrr.GoalId": "numeric",
+      "Search.PayForConversionCrr.WeeklySpendLimit": "numeric",
+      "Search.PayForConversion.Cpa": "numeric",
+      "Search.PayForConversion.GoalId": "numeric",
+      "Search.PayForConversion.WeeklySpendLimit": "numeric",
+      "Search.WeeklyClickPackage.ClicksPerWeek": "numeric",
+      "Search.WeeklyClickPackage.AverageCpc": "numeric",
+      "Search.WeeklyClickPackage.BidCeiling": "numeric",
+      "Network.BiddingStrategyType": "text",
+      "Network.NetworkDefault.LimitPercent": "numeric",
+      "Network.WbMaximumClicks.WeeklySpendLimit": "numeric",
+      "Network.WbMaximumClicks.BidCeiling": "numeric",
+      "Network.WbMaximumConversionRate.WeeklySpendLimit": "numeric",
+      "Network.WbMaximumConversionRate.BidCeiling": "numeric",
+      "Network.WbMaximumConversionRate.GoalId": "numeric",
+      "Network.AverageCpc.AverageCpc": "numeric",
+      "Network.AverageCpc.WeeklySpendLimit": "numeric",
+      "Network.AverageCpa.AverageCpa": "numeric",
+      "Network.AverageCpa.GoalId": "numeric",
+      "Network.AverageCpa.WeeklySpendLimit": "numeric",
+      "Network.AverageCpa.BidCeiling": "numeric",
+      "Network.AverageRoi.ReserveReturn": "numeric",
+      "Network.AverageRoi.RoiCoef": "numeric",
+      "Network.AverageRoi.GoalId": "numeric",
+      "Network.AverageRoi.WeeklySpendLimit": "numeric",
+      "Network.AverageRoi.BidCeiling": "numeric",
+      "Network.AverageRoi.Profitability": "numeric",
+      "Network.AverageCrr.Crr": "numeric",
+      "Network.AverageCrr.GoalId": "numeric",
+      "Network.AverageCrr.WeeklySpendLimit": "numeric",
+      "Network.PayForConversionCrr.Crr": "numeric",
+      "Network.PayForConversionCrr.GoalId": "numeric",
+      "Network.PayForConversionCrr.WeeklySpendLimit": "numeric",
+      "Network.PayForConversion.Cpa": "numeric",
+      "Network.PayForConversion.GoalId": "numeric",
+      "Network.PayForConversion.WeeklySpendLimit": "numeric",
+      "Network.WeeklyClickPackage.ClicksPerWeek": "numeric",
+      "Network.WeeklyClickPackage.AverageCpc": "numeric",
+      "Network.WeeklyClickPackage.BidCeiling": "numeric",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Campaigns.TextCampaign": {
+      "CampaignsId": "bigint",
+      "AttributionModel": "text",
+      "CounterIds.Items": "integer ARRAY",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"CampaignsId\", \"ServerDateTime\")",
+        "add_data": {
+          "CampaignsId": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "AdGroups": {
+      "Id": "bigint",
+      "Name": "text",
+      "CampaignId": "bigint",
+      "Type": "text",
+      "TrackingParams": "text",
+      "Subtype": "text",
+      "ServingStatus": "text",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "AdGroups.RegionIds.Plus": {
+      "Id": "bigint",
+      "RegionIds": "integer",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\", \"RegionIds\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "AdGroups.RegionIds.Minus": {
+      "Id": "bigint",
+      "RegionIds": "integer",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\", \"RegionIds\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "AdGroups.RestrictedRegionIds": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "Items": "integer",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\", \"Items\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "AdGroups.NegativeKeywords": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "NegativeKeywords.Items": "integer ARRAY",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "AdGroups.NegativeKeywordSharedSetIds": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "NegativeKeywordSharedSetIds.Items": "integer ARRAY",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "AdGroups.Status": {
+      "Id": "bigint",
+      "Status": "text",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "SitelinksSets":  {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "SitelinksSets.Sitelinks":  {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "Title": "text",
+      "Href": "text",
+      "Description": "text",
+      "TurboPageId": "bigint",
+      "special_data": {
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "AdExtensions": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "Associated": "text",
+      "Type": "text",
+      "State": "text",
+      "Status": "text",
+      "StatusClarification": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "AdExtensions.Callout": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "CalloutText": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Ads": {
+      "Id": "bigint",
+      "AdGroupId": "bigint",
+      "CampaignId": "bigint",
+      "StatusClarification": "text",
+      "Type": "text",
+      "Subtype": "text",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Ads.Status": {
+      "Id": "bigint",
+      "Status": "text",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Ads.State": {
+      "Id": "bigint",
+      "State": "text",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Ads.AdCategories": {
+      "Id": "bigint",
+      "Items": "text ARRAY",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Ads.AgeLabel": {
+      "Id": "bigint",
+      "AgeLabel": "text ARRAY",
+      "ServerDateTime": "timestamp",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Ads.TextAd": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "Text": "text",
+      "Title": "text",
+      "Title2": "text",
+      "Href": "text",
+      "Mobile": "text",
+      "DisplayDomain": "text",
+      "DisplayUrlPath": "text",
+      "VCardId": "text",
+      "SitelinkSetId": "bigint",
+      "AdImageHash": "text",
+      "TurboPageId": "numeric",
+      "BusinessId": "numeric",
+      "PreferVCardOverBusiness": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Ads.TextAd.DisplayUrlPathModeration": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "Status": "text",
+      "StatusClarification": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Ads.TextAd.VCardModeration": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "Status": "text",
+      "StatusClarification": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Ads.TextAd.SitelinksModeration": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "Status": "text",
+      "StatusClarification": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Ads.TextAd.AdImageModeration": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "Status": "text",
+      "StatusClarification": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Ads.TextAd.AdExtensions": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "AdExtensionId": "bigint",
+      "Type": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\", \"AdExtensionId\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Ads.TextAd.VideoExtension": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "CreativeId": "bigint",
+      "Status": "text",
+      "ThumbnailUrl": "text",
+      "PreviewUrl": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Ads.TextAd.PriceExtension": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "Price": "numeric",
+      "OldPrice": "numeric",
+      "PriceQualifier": "text",
+      "PriceCurrency": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Ads.TextAd.TurboPageModeration": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "Status": "text",
+      "StatusClarification": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Keywords":{
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "Keyword": "text",
+      "AdGroupId": "bigint",
+      "CampaignId": "bigint",
+      "Bid": "integer",
+      "ContextBid": "integer",
+      "StrategyPriority": "text",
+      "State": "text",
+      "Status": "text",
+      "UserParam1": "text",
+      "UserParam2": "text",
+      "ServingStatus": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Keywords.StatisticsNetwork":  {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "Clicks": "integer",
+      "Impressions": "integer",
+      "special_data": {
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "Keywords.StatisticsSearch":  {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "Clicks": "integer",
+      "Impressions": "integer",
+      "special_data": {
+        "add_data": {
+          "Id": "Id",
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    },
+    "AudienceTargets": {
+      "Id": "bigint",
+      "ServerDateTime": "timestamp",
+      "AdGroupId": "bigint",
+      "CampaignId": "bigint",
+      "RetargetingListId": "bigint",
+      "InterestId": "bigint",
+      "State": "text",
+      "ContextBid": "bigint",
+      "StrategyPriority": "text",
+      "special_data": {
+        "primary_key": "PRIMARY KEY (\"Id\", \"ServerDateTime\")",
+        "add_data": {
+          "ServerDateTime": "ServerDateTime"
+        }
+      }
+    }
+  }
+}
