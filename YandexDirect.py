@@ -1896,34 +1896,47 @@ def _delete_files(**kwargs):
 	del_cycle(del_list)
 
 
-def _get_camp_id(**kwargs):
+def _extension_daily_budget(**kwargs):
 	connection, cursor = connect_db()
+	# get the companies working
 	request = """
-		select s1."CampaignsId" from public."Campaigns.State" as s1
+		select "CampaignsId" from public."Campaigns.State" as t1
 			JOIN
 				(select "CampaignsId" as "id", max("ServerDateTime") as "dt" from public."Campaigns.State" 
-				group by "CampaignsId") as s0
-			ON s1."CampaignsId" = s0."id" AND s1."ServerDateTime" = s0."dt"
-		where s1."State" = 'ON'
+					group by "CampaignsId") as t0
+		ON t1."CampaignsId" = t0."id" AND t1."ServerDateTime" = t0."dt"
+		where t1."State" = 'ON'
 	"""
-	time_df = pd.read_sql_query(con=connection, sql=request)
+	work_company_df = pd.read_sql_query(con=connection, sql=request)
+
+	# get last not updates data
+	request = """
+			select "CampaignsId", "Amount", "Mode", "ServerDateTime" from public."Campaigns.DailyBudget" as t1
+				JOIN
+					(select "CampaignsId" as "id", max("ServerDateTime") as "dt" from public."Campaigns.DailyBudget"
+					 where "Amount" > 0
+						group by "CampaignsId") as t0
+			ON t1."CampaignsId" = t0."id" AND t1."ServerDateTime" = t0."dt"
+			where t1."ServerDateTime" <> 
+		"""
+
+	date_xcom = kwargs['ti'].xcom_pull(task_ids='get_server_time', key='server_data')
+	server_date_time = pendulum.parse(date_xcom.get("server_date_time"))
+	request = request + f"'{server_date_time}'"
+	not_update_df = pd.read_sql_query(con=connection, sql=request)
+
 	connection.close()
-	have_id = set(time_df['CampaignsId'].unique())
+	not_update_df.merge(not_update_df, how='inner', on='CampaignsId', suffixes=(False, '_right'))
 
-	date_xcom = kwargs['ti'].xcom_pull(
-		task_ids='ch_campaigns.update_data.campaigns_update.separate_changed_campaigns',
-		key="campaigns")
+	if len(not_update_df) != 0:
+		url, headers, p = get_conf()
+		with open(f'{p}/{"tessttt"}', 'wb') as f:
+			pickle.dump(not_update_df, f)
 
-	if date_xcom is not None:
-		have_campaingns_id = date_xcom.get('campaigns_id')
-		have_id = have_id.difference(have_campaingns_id)
-		if len(have_id) == 0:
-			raise AirflowSkipException("No data to update")
-	else:
 		kwargs['task_instance'].xcom_push(
-			key='company_id',
+			key='update_file',
 			value={
-				'have_camp_id': have_id
+				'file_name': "tessttt"
 			}
 		)
 
@@ -1992,7 +2005,7 @@ def _get_ad_id(**kwargs):
 
 def _add_old_data(**kwargs):
 	return
-	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.old_data.get_camp_id', key="company_id")
+	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.old_data.extension_daily_budget', key="company_id")
 	camp_id = date_xcom.get('have_camp_id')
 	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.old_data.get_ad_groups_id', key="groups_id")
 	groups_id = date_xcom.get('have_ad_groups_id')
@@ -2782,9 +2795,9 @@ def _create_pipeline(dag_, start_dt):
 
 		with TaskGroup("old_data", tooltip="Old data") as old_data:
 
-			get_camp_id = PythonOperator(
-				task_id='get_camp_id',
-				python_callable=_get_camp_id,
+			extension_daily_budget = PythonOperator(
+				task_id='extension_daily_budget',
+				python_callable=_extension_daily_budget,
 				dag=dag_)
 
 			get_ad_groups_id = PythonOperator(
@@ -2804,7 +2817,7 @@ def _create_pipeline(dag_, start_dt):
 				dag=dag_)
 
 
-			[get_camp_id, get_ad_groups_id, get_ad_id] >>  add_old_data
+			[extension_daily_budget, get_ad_groups_id, get_ad_id] >>  add_old_data
 
 		# Код для функций обновления
 		python_sensor = PythonSensor(
