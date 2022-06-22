@@ -1924,19 +1924,20 @@ def _extension_daily_budget(**kwargs):
 	server_date_time = pendulum.parse(date_xcom.get("server_date_time"))
 	request = request + f"'{server_date_time}'"
 	not_update_df = pd.read_sql_query(con=connection, sql=request)
-
 	connection.close()
-	not_update_df.merge(not_update_df, how='inner', on='CampaignsId', suffixes=(False, '_right'))
+
+	not_update_df = not_update_df.merge(work_company_df, how='inner', on='CampaignsId', suffixes=(False, '_right'))
 
 	if len(not_update_df) != 0:
 		url, headers, p = get_conf()
-		with open(f'{p}/{"tessttt"}', 'wb') as f:
+		file_name = 'inner_df'
+		with open(f'{p}/{file_name}', 'wb') as f:
 			pickle.dump(not_update_df, f)
 
 		kwargs['task_instance'].xcom_push(
 			key='update_file',
 			value={
-				'file_name': "tessttt"
+				'file_name': file_name
 			}
 		)
 
