@@ -2829,7 +2829,7 @@ def _create_pipeline(dag_, start_dt):
 				dag=dag_)
 
 
-			[extension_daily_budget, get_ad_groups_id, get_ad_id] >>  add_old_data
+			[extension_daily_budget, get_ad_groups_id, get_ad_id] >>  add_old_data >> update_server_time
 
 		# Код для функций обновления
 		python_sensor = PythonSensor(
@@ -2842,7 +2842,7 @@ def _create_pipeline(dag_, start_dt):
 		python_sensor >> [old_data, campaigns_update]
 		python_sensor >> update_data
 		pre_processing_check_campaigns >> campaigns_update
-		update_data >> old_data >> update_server_time
+		update_data >> old_data
 	"""
     
 
