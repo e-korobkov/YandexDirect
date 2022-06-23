@@ -321,8 +321,8 @@ def _get_server_time(**kwargs):
 	url, headers, p = get_conf()
 	url = url + 'changes'
 	payload = json.dumps({
-		"method":"checkDictionaries",
-		"params":{}
+		"method": "checkDictionaries",
+		"params": {}
 	})
 	try:
 		response = requests.request("POST", url, headers=headers, data=payload)
@@ -336,8 +336,8 @@ def _get_server_time(**kwargs):
 			kwargs['task_instance'].xcom_push(
 				key='server_data',
 				value={
-					'server_date_time':server_time.to_iso8601_string(),
-					'mask_file_name':response.headers.get("RequestId")
+					'server_date_time': server_time.to_iso8601_string(),
+					'mask_file_name': response.headers.get("RequestId")
 				}
 			)
 
@@ -1197,7 +1197,7 @@ def _add_keywords_to_postgres(**kwargs):
 
 
 def _python_sensor(**kwargs):
-	# на отладку
+	# на отладку !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	date_xcom = kwargs['ti'].xcom_pull(task_ids='get_server_time', key='server_data')
 	server_date_time = pendulum.parse(date_xcom.get("server_date_time"))
@@ -1210,7 +1210,7 @@ def _python_sensor(**kwargs):
 		kwargs['task_instance'].xcom_push(
 			key='previous_load_date',
 			value={
-				'server_date_time':pend_time.to_iso8601_string()
+				'server_date_time': pend_time.to_iso8601_string()
 			}
 		)
 		return True
@@ -1910,7 +1910,7 @@ def _extension_daily_budget(**kwargs):
 		where t1."State" = 'ON'
 	"""
 	work_company_df = pd.read_sql_query(con=connection, sql=request)
-
+	print(work_company_df)
 	# get last not updates data
 	request = """
 			select "CampaignsId", "Amount", "Mode", "ServerDateTime" from public."Campaigns.DailyBudget" as t1
@@ -1926,10 +1926,17 @@ def _extension_daily_budget(**kwargs):
 	server_date_time = pendulum.parse(date_xcom.get("server_date_time"))
 	request = request + f"'{server_date_time}'"
 	not_update_df = pd.read_sql_query(con=connection, sql=request)
+	print(not_update_df)
+	cursor.close()
 	connection.close()
 
 	not_update_df = not_update_df.merge(work_company_df, how='inner', on='CampaignsId', suffixes=(False, '_right'))
-
+	print(not_update_df)
+	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.update_data.check_campaigns', key="checkCampaigns")
+	new_server_time = date_xcom.get('server_date_time')
+	print(new_server_time)
+	not_update_df['ServerDateTime'] = new_server_time
+	print(not_update_df)
 	if len(not_update_df) != 0:
 		url, headers, p = get_conf()
 		file_name = 'inner_df'
@@ -1939,7 +1946,7 @@ def _extension_daily_budget(**kwargs):
 		kwargs['task_instance'].xcom_push(
 			key='update_file',
 			value={
-				'file_name':file_name
+				'file_name': file_name
 			}
 		)
 
@@ -2007,14 +2014,21 @@ def _get_ad_id(**kwargs):
 
 
 def _add_old_data(**kwargs):
-	return
-	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.old_data.extension_daily_budget', key="company_id")
-	camp_id = date_xcom.get('have_camp_id')
-	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.old_data.get_ad_groups_id', key="groups_id")
-	groups_id = date_xcom.get('have_ad_groups_id')
-	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.old_data.get_ad_id', key="ad_id")
-	ad_id = date_xcom.get('have_ad_id')
-	sql_tables = dict(Variable.get("SQL_Tables_Schema", deserialize_json=True))
+	url, headers, p = get_conf()
+	add_to_postgres = dict()
+
+	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.old_data.extension_daily_budget', key="update_file")
+	if date_xcom.get('file_name', None) is not None:
+		with open(f'{p}/{date_xcom.get("file_name")}', 'rb') as f:
+			add_to_postgres['Campaigns.DailyBudget'] = pickle.load(f)
+
+	# date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.old_data.get_ad_groups_id', key="groups_id")
+	# groups_id = date_xcom.get('have_ad_groups_id')
+	# date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.old_data.get_ad_id', key="ad_id")
+	# ad_id = date_xcom.get('have_ad_id')
+	# sql_tables = dict(Variable.get("SQL_Tables_Schema", deserialize_json=True))
+	write_data_to_postgres(add_to_postgres)
+
 	return
 
 
