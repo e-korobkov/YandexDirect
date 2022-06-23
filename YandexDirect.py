@@ -1899,6 +1899,8 @@ def _delete_files(**kwargs):
 
 
 def _extension_daily_budget(**kwargs):
+	""" expand data for the "Campaigns.DailyBudget" table """
+
 	connection, cursor = connect_db()
 	# get the companies working
 	request = """
@@ -1951,64 +1953,116 @@ def _extension_daily_budget(**kwargs):
 		)
 
 
-def _get_ad_groups_id(**kwargs):
-	connection, cursor = connect_db()
-	request = """
-		select s1."Id" from public."AdGroups.Status" as s1
-		JOIN
-			(select "Id", "Status", max("ServerDateTime") as "dt" from public."AdGroups.Status"
-			group by "Id", "Status") as s0
-			ON s1."Id" = s0."Id" AND s1."ServerDateTime" = s0."dt"
-		where s1."Status" = 'ACCEPTED' or s1."Status" = 'PREACCEPTED'
-	"""
-	time_df = pd.read_sql_query(con=connection, sql=request)
-	connection.close()
-	have_id = set(time_df['Id'].unique())
+def _shared_account_funds(**kwargs):
+	""" expand data for the "Campaigns.Funds.SharedAccountFunds" table """
 
-	date_xcom = kwargs['ti'].xcom_pull(
-		task_ids='ch_campaigns.update_data.adgroup_update.separate_adgroups_update_data',
-		key="update_adgroups")
-	if date_xcom is not None:
-		have_adgroups_id = date_xcom.get('adgroups_id')
-		have_id = have_id.difference(have_adgroups_id)
-		if len(have_id) == 0:
-			raise AirflowSkipException("No data to update")
-	else:
+	connection, cursor = connect_db()
+	# get the companies working
+	request = """
+		select "CampaignsId" from public."Campaigns.State" as t1
+			JOIN
+				(select "CampaignsId" as "id", max("ServerDateTime") as "dt" from public."Campaigns.State" 
+					group by "CampaignsId") as t0
+		ON t1."CampaignsId" = t0."id" AND t1."ServerDateTime" = t0."dt"
+		where t1."State" = 'ON'
+	"""
+	work_company_df = pd.read_sql_query(con=connection, sql=request)
+	print(work_company_df)
+	# get last not updates data
+	request = """
+		select "CampaignsId", "ServerDateTime", "Spend", "Refund" from public."Campaigns.Funds.SharedAccountFunds" as t1
+		JOIN
+			(select "CampaignsId" as "id", max("ServerDateTime") as "dt" from public."Campaigns.Funds.SharedAccountFunds"
+				where "Spend" > 0 OR "Refund" > 0
+				group by "CampaignsId") as t0
+		ON t1."CampaignsId" = t0."id" AND t1."ServerDateTime" = t0."dt"
+		where t1."ServerDateTime" <>
+	"""
+	date_xcom = kwargs['ti'].xcom_pull(task_ids='get_server_time', key='server_data')
+	server_date_time = pendulum.parse(date_xcom.get("server_date_time"))
+	request = request + f"'{server_date_time}'"
+	not_update_df = pd.read_sql_query(con=connection, sql=request)
+	# if len(not_update_df) == 0:
+	# 	# None data
+	# 	raise AirflowSkipException("No data to update")
+	print(not_update_df)
+	cursor.close()
+	connection.close()
+
+	not_update_df = not_update_df.merge(work_company_df, how='inner', on='CampaignsId', suffixes=(False, '_right'))
+	print(not_update_df)
+	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.update_data.check_campaigns', key="checkCampaigns")
+	new_server_time = date_xcom.get('server_date_time')
+	print(new_server_time)
+	not_update_df['ServerDateTime'] = new_server_time
+	print(not_update_df)
+	if len(not_update_df) != 0:
+		url, headers, p = get_conf()
+		file_name = 'inner_df'
+		with open(f'{p}/{file_name}', 'wb') as f:
+			pickle.dump(not_update_df, f)
+
 		kwargs['task_instance'].xcom_push(
-			key='groups_id',
+			key='update_file',
 			value={
-				'have_ad_groups_id':have_id
+				'file_name':file_name
 			}
 		)
 
 
-def _get_ad_id(**kwargs):
+def _statistics(**kwargs):
+	""" expand data for the "Campaigns.Statistics" table """
+
 	connection, cursor = connect_db()
+	# get the companies working
 	request = """
-		select s1."Id" from public."Ads.State" as s1
-		JOIN
-			(select "Id", "State", max("ServerDateTime") as "dt" from public."Ads.State"
-			group by "Id", "State") as s0
-		ON s1."Id" = s0."Id" AND s1."ServerDateTime" = s0."dt"
-		where s1."State" = 'ON'
+		select "CampaignsId" from public."Campaigns.State" as t1
+			JOIN
+				(select "CampaignsId" as "id", max("ServerDateTime") as "dt" from public."Campaigns.State" 
+					group by "CampaignsId") as t0
+		ON t1."CampaignsId" = t0."id" AND t1."ServerDateTime" = t0."dt"
+		where t1."State" = 'ON'
 	"""
-	time_df = pd.read_sql_query(con=connection, sql=request)
+	work_company_df = pd.read_sql_query(con=connection, sql=request)
+	print(work_company_df)
+	# get last not updates data
+	request = """
+		select "CampaignsId", "ServerDateTime", "Clicks", "Impressions" from public."Campaigns.Statistics" as t1
+			JOIN
+				(select "CampaignsId" as "id", max("ServerDateTime") as "dt" from public."Campaigns.Statistics"
+					where "Clicks" > 0 OR "Clicks" > 0
+					group by "CampaignsId") as t0
+		ON t1."CampaignsId" = t0."id" AND t1."ServerDateTime" = t0."dt"
+		where t1."ServerDateTime" <>
+	"""
+	date_xcom = kwargs['ti'].xcom_pull(task_ids='get_server_time', key='server_data')
+	server_date_time = pendulum.parse(date_xcom.get("server_date_time"))
+	request = request + f"'{server_date_time}'"
+	not_update_df = pd.read_sql_query(con=connection, sql=request)
+	# if len(not_update_df) == 0:
+	# 	# None data
+	# 	raise AirflowSkipException("No data to update")
+	print(not_update_df)
+	cursor.close()
 	connection.close()
 
-	have_id = set(time_df['Id'].unique())
-	date_xcom = kwargs['ti'].xcom_pull(
-		task_ids='ch_campaigns.update_data.ad_update.separate_ad_update_data',
-		key="update_ads")
-	if date_xcom is not None:
-		have_ads_id = date_xcom.get('ads_id')
-		have_id = have_id.difference(have_ads_id)
-		if len(have_id) == 0:
-			raise AirflowSkipException("No data to update")
-	else:
+	not_update_df = not_update_df.merge(work_company_df, how='inner', on='CampaignsId', suffixes=(False, '_right'))
+	print(not_update_df)
+	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.update_data.check_campaigns', key="checkCampaigns")
+	new_server_time = date_xcom.get('server_date_time')
+	print(new_server_time)
+	not_update_df['ServerDateTime'] = new_server_time
+	print(not_update_df)
+	if len(not_update_df) != 0:
+		url, headers, p = get_conf()
+		file_name = 'inner_df'
+		with open(f'{p}/{file_name}', 'wb') as f:
+			pickle.dump(not_update_df, f)
+
 		kwargs['task_instance'].xcom_push(
-			key='ad_id',
+			key='update_file',
 			value={
-				'have_ad_id':have_id
+				'file_name':file_name
 			}
 		)
 
@@ -2022,11 +2076,16 @@ def _add_old_data(**kwargs):
 		with open(f'{p}/{date_xcom.get("file_name")}', 'rb') as f:
 			add_to_postgres['Campaigns.DailyBudget'] = pickle.load(f)
 
-	# date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.old_data.get_ad_groups_id', key="groups_id")
-	# groups_id = date_xcom.get('have_ad_groups_id')
-	# date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.old_data.get_ad_id', key="ad_id")
-	# ad_id = date_xcom.get('have_ad_id')
-	# sql_tables = dict(Variable.get("SQL_Tables_Schema", deserialize_json=True))
+	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.old_data.shared_account_funds', key="update_file")
+	if date_xcom.get('file_name', None) is not None:
+		with open(f'{p}/{date_xcom.get("file_name")}', 'rb') as f:
+			add_to_postgres['Campaigns.Funds.SharedAccountFunds'] = pickle.load(f)
+
+	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.old_data.statistics', key="update_file")
+	if date_xcom.get('file_name', None) is not None:
+		with open(f'{p}/{date_xcom.get("file_name")}', 'rb') as f:
+			add_to_postgres['Campaigns.Funds.SharedAccountFunds'] = pickle.load(f)
+
 	write_data_to_postgres(add_to_postgres)
 
 	return
@@ -2817,14 +2876,14 @@ def _create_pipeline(dag_, start_dt):
 				python_callable=_extension_daily_budget,
 				dag=dag_)
 
-			get_ad_groups_id = PythonOperator(
-				task_id='get_ad_groups_id',
-				python_callable=_get_ad_groups_id,
+			shared_account_funds = PythonOperator(
+				task_id='shared_account_funds',
+				python_callable=_shared_account_funds,
 				dag=dag_)
 
-			get_ad_id = PythonOperator(
-				task_id='get_ad_id',
-				python_callable=_get_ad_id,
+			statistics = PythonOperator(
+				task_id='statistics',
+				python_callable=_statistics,
 				dag=dag_)
 
 			add_old_data = PythonOperator(
@@ -2838,7 +2897,7 @@ def _create_pipeline(dag_, start_dt):
 				python_callable=_update_server_time,
 				dag=dag_)
 
-			[extension_daily_budget, get_ad_groups_id, get_ad_id] >> add_old_data >> update_server_time
+			[extension_daily_budget, shared_account_funds, statistics] >> add_old_data >> update_server_time
 
 		# Код для функций обновления
 		python_sensor = PythonSensor(
