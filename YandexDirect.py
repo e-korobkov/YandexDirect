@@ -1225,8 +1225,8 @@ def _check_campaigns(**kwargs):
 	pathlib.Path(p).mkdir(parents=True, exist_ok=True)
 	url = url + 'changes'
 	payload = json.dumps({
-		"method":"checkCampaigns",
-		"params":{
+		"method": "checkCampaigns",
+		"params": {
 			"Timestamp":f"{server_date_time}"
 		}
 	})
@@ -1246,9 +1246,9 @@ def _check_campaigns(**kwargs):
 			kwargs['task_instance'].xcom_push(
 				key='checkCampaigns',
 				value={
-					'file_name':filename,
-					'server_date_time':get_logs.get('result').get('Timestamp'),
-					'mask_file_name':response.headers.get("RequestId")
+					'file_name': filename,
+					'server_date_time': get_logs.get('result').get('Timestamp'),
+					'mask_file_name': response.headers.get("RequestId")
 				}
 			)
 
@@ -2016,6 +2016,23 @@ def _add_old_data(**kwargs):
 	return
 
 
+def _update_server_time(**kwargs):
+	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.update_data.check_campaigns', key="checkCampaigns")
+	new_server_time = date_xcom.get('server_date_time')
+	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'ch_campaigns.python_sensor', key="previous_load_date")
+	old_server_time = date_xcom.get('server_date_time')
+
+	connection, cursor = connect_db()
+	table_name = '"ServerTime"'
+	request = f"UPDATE {table_name} set dt = '{new_server_time}' where dt = '{old_server_time}'"
+	cursor.execute(request)
+	connection.commit()
+	cursor.close()
+	connection.close()
+
+
+
+
 
 
 
@@ -2432,18 +2449,7 @@ def _update_dictionaries(**kwargs):
 			print(f'Нет изминений в: {key}')
 
 
-def _update_server_time(**kwargs):
-	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'check_campaigns', key="checkCampaigns")
-	new_server_time = date_xcom.get('server_date_time')
-	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'first_branching', key="first_branch")
-	old_server_time = date_xcom['server_time']
-	connection, cursor = connect_db()
-	table_name = '"ServerTime"'
-	request = f"UPDATE {table_name} set dt = '{new_server_time}' where dt = '{old_server_time}'"
-	cursor.execute(request)
-	connection.commit()
-	cursor.close()
-	connection.close()
+
 
 
 def _delete_first_upload_files(**kwargs):
@@ -2817,6 +2823,11 @@ def _create_pipeline(dag_, start_dt):
 				trigger_rule="none_failed",
 				dag=dag_)
 
+			update_server_time = PythonOperator(
+				task_id='update_server_time',
+				python_callable=_update_server_time,
+				dag=dag_)
+
 
 			[extension_daily_budget, get_ad_groups_id, get_ad_id] >>  add_old_data
 
@@ -2831,7 +2842,7 @@ def _create_pipeline(dag_, start_dt):
 		python_sensor >> [old_data, campaigns_update]
 		python_sensor >> update_data
 		pre_processing_check_campaigns >> campaigns_update
-		update_data >> old_data
+		update_data >> old_data >> update_server_time
 	"""
     
 
@@ -2964,12 +2975,6 @@ def _create_pipeline(dag_, start_dt):
             dag=dag_)
 
         check_change_dictionaries >> update_dictionaries
-
-    update_server_time = PythonOperator(
-        task_id='update_server_time',
-        python_callable=_update_server_time,
-        dag=dag_)
-
 
     """
 
