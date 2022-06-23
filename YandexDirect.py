@@ -138,7 +138,7 @@ def add_data_df(server_time, time_td, t_df, campaigns_dict, table_name, type_dat
 
 
 def add_df(server_time, type_data, table_name, campaigns_dict, sql_tables_dict, dict_dataframe, deep=False,
-		   sec_name=False, have_deep_key=False):
+           sec_name=False, have_deep_key=False):
 	if type_data == table_name:
 		time_td = sql_tables_dict.get(table_name)
 	elif sec_name is not False:
@@ -155,11 +155,11 @@ def add_df(server_time, type_data, table_name, campaigns_dict, sql_tables_dict, 
 				time_data[key] = None
 			time_data = json_normalize(time_data)
 			dict_dataframe = add_data_df(server_time, time_td, time_data, campaigns_dict, table_name, type_data,
-										 sec_name, dict_dataframe)
+			                             sec_name, dict_dataframe)
 			return dict_dataframe
 		elif isinstance(campaigns_dict.get(table_name), list):
 			dict_dataframe = add_data_df(server_time, time_td, json_normalize(time_data.get(table_name)),
-										 campaigns_dict, table_name, type_data, sec_name, dict_dataframe)
+			                             campaigns_dict, table_name, type_data, sec_name, dict_dataframe)
 			return dict_dataframe
 	else:
 		if sec_name is False and have_deep_key is False:
@@ -173,13 +173,13 @@ def add_df(server_time, type_data, table_name, campaigns_dict, sql_tables_dict, 
 					if isinstance(campaigns_dict.get(table_name).get(sec_name), list):
 						t_df = json_normalize(campaigns_dict.get(table_name).get(sec_name))
 						dict_dataframe = add_data_df(server_time, time_td, t_df, campaigns_dict, table_name, type_data,
-													 sec_name, dict_dataframe)
+						                             sec_name, dict_dataframe)
 						return dict_dataframe
 					elif isinstance(campaigns_dict.get(table_name).get(sec_name).get(col_name), list):
 						t_df = pd.DataFrame(
 							campaigns_dict.get(table_name).get(sec_name).get(col_name), columns=[col_name])
 						dict_dataframe = add_data_df(server_time, time_td, t_df, campaigns_dict, table_name, type_data,
-													 sec_name, dict_dataframe)
+						                             sec_name, dict_dataframe)
 						return dict_dataframe
 					elif isinstance(campaigns_dict.get(table_name).get(sec_name), dict):
 						time_td[col_name] = campaigns_dict.get(
@@ -193,7 +193,7 @@ def add_df(server_time, type_data, table_name, campaigns_dict, sql_tables_dict, 
 				time_td = sql_tables_dict.get(f'{type_data}.{table_name}.{sec_name}')
 
 	dict_dataframe = add_data_df(server_time, time_td, json_normalize(time_data), campaigns_dict, table_name, type_data,
-								 sec_name, dict_dataframe)
+	                             sec_name, dict_dataframe)
 	return dict_dataframe
 
 
@@ -246,7 +246,7 @@ def separate_data(type_data, sql_tb, all_cam, server_time):
 						dict_frame = add_df(server_time, type_data, k, camp_dict, sql_tb, dict_frame, True)
 					elif len(upper_dict) > 0 and have_deep_key is True:
 						dict_frame = add_df(server_time, type_data, k, camp_dict, sql_tb, dict_frame, True, False,
-											upper_dict)
+						                    upper_dict)
 			elif additional_key in tables_into_bd:
 				finish_camp_dict.pop(k)
 				dict_frame = add_df(server_time, type_data, k, camp_dict, sql_tb, dict_frame)
@@ -610,7 +610,7 @@ def _separate_dictionaries(**kwargs):
 def _add_dictionaries_to_bd(**kwargs):
 	url, headers, p = get_conf()
 	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'full_load.download_dict.separate_dictionaries',
-									   key="sep_dictionaries")
+	                                   key="sep_dictionaries")
 	filename_set = date_xcom.get("file_name")
 	for file_name in filename_set:
 		with open(f'{p}/{file_name}', 'rb') as f:
@@ -1087,7 +1087,7 @@ def _separate_audience_data(**kwargs):
 	url, headers, p = get_conf()
 	sql_tables = dict(Variable.get("SQL_Tables_Schema", deserialize_json=True))
 	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'full_load.audience_targets.get_audience_targets',
-									   key="AudienceTargets")
+	                                   key="AudienceTargets")
 	filename_set = date_xcom.get('file_name')
 	date_xcom = kwargs['ti'].xcom_pull(task_ids='get_server_time', key="server_data")
 	server_date_time = date_xcom.get('server_date_time')
@@ -1110,7 +1110,7 @@ def _separate_audience_data(**kwargs):
 def _add_audience_data_to_postgres(**kwargs):
 	url, headers, p = get_conf()
 	date_xcom = kwargs['ti'].xcom_pull(task_ids='full_load.audience_targets.separate_audience_data',
-									   key='all_audience_targets')
+	                                   key='all_audience_targets')
 	with open(f'{p}/{date_xcom.get("file_name")}', 'rb') as f:
 		dict_df = pickle.load(f)
 
@@ -1225,8 +1225,8 @@ def _check_campaigns(**kwargs):
 	pathlib.Path(p).mkdir(parents=True, exist_ok=True)
 	url = url + 'changes'
 	payload = json.dumps({
-		"method": "checkCampaigns",
-		"params": {
+		"method":"checkCampaigns",
+		"params":{
 			"Timestamp":f"{server_date_time}"
 		}
 	})
@@ -1246,9 +1246,9 @@ def _check_campaigns(**kwargs):
 			kwargs['task_instance'].xcom_push(
 				key='checkCampaigns',
 				value={
-					'file_name': filename,
-					'server_date_time': get_logs.get('result').get('Timestamp'),
-					'mask_file_name': response.headers.get("RequestId")
+					'file_name':filename,
+					'server_date_time':get_logs.get('result').get('Timestamp'),
+					'mask_file_name':response.headers.get("RequestId")
 				}
 			)
 
@@ -1295,9 +1295,9 @@ def _pre_processing_check_campaigns(**kwargs):
 	kwargs['task_instance'].xcom_push(
 		key='Check',
 		value={
-			'SELF': f'self_set_{mask_file_name}.pkl' if len(self_set) > 0 else None,
-			'CHILDREN': f'children_set_{mask_file_name}.pkl' if len(children_set) > 0 else None,
-			'STAT': f'stat_set_{mask_file_name}.pkl' if len(stat_set) > 0 else None
+			'SELF':f'self_set_{mask_file_name}.pkl' if len(self_set) > 0 else None,
+			'CHILDREN':f'children_set_{mask_file_name}.pkl' if len(children_set) > 0 else None,
+			'STAT':f'stat_set_{mask_file_name}.pkl' if len(stat_set) > 0 else None
 		}
 	)
 
@@ -1335,7 +1335,7 @@ def _get_changed_children(**kwargs):
 	kwargs['task_instance'].xcom_push(
 		key='campaigns',
 		value={
-			'file_name': filename_set
+			'file_name':filename_set
 		}
 	)
 
@@ -1501,8 +1501,8 @@ def _separate_adgroups_update_data(**kwargs):
 	kwargs['task_instance'].xcom_push(
 		key='update_adgroups',
 		value={
-			'file_name': filename,
-			'adgroups_id': set(f_dict_df['AdGroups']['Id'])
+			'file_name':filename,
+			'adgroups_id':set(f_dict_df['AdGroups']['Id'])
 		}
 	)
 
@@ -1677,8 +1677,8 @@ def _separate_ad_update_data(**kwargs):
 	kwargs['task_instance'].xcom_push(
 		key='update_ads',
 		value={
-			'file_name': filename,
-			'ads_id': set(f_dict_df['Ads']['Id'])
+			'file_name':filename,
+			'ads_id':set(f_dict_df['Ads']['Id'])
 		}
 	)
 
@@ -1700,7 +1700,7 @@ def _get_changed_campaigns(**kwargs):
 	date_xcom = kwargs['ti'].xcom_pull(
 		task_ids=f'ch_campaigns.update_data.pre_processing_check_campaigns',
 		key="Check")
-	if date_xcom is None:
+	if date_xcom is None or date_xcom.get('SELF') is None:
 		raise AirflowSkipException("No company data")
 	filename = date_xcom.get('SELF')
 
@@ -1768,7 +1768,8 @@ def _get_changed_campaigns(**kwargs):
             #                "BiddingStrategy"
             #            ]
         }
-    }'''
+    }
+    '''
 	extention_url = 'campaigns'
 	req_metod = "GET"
 	file_name_mask = f'campaigns_{mask_file_name}_'
@@ -1784,8 +1785,8 @@ def _get_changed_campaigns(**kwargs):
 	kwargs['task_instance'].xcom_push(
 		key='campaigns',
 		value={
-			'file_name': filename_set,
-			'campaigns_id': data_file
+			'file_name':filename_set,
+			'campaigns_id':data_file
 		}
 	)
 
@@ -1811,7 +1812,7 @@ def _separate_changed_campaigns(**kwargs):
 		key='update_campaigns',
 		value={
 			'file_name':filename,
-			'campaigns_id': set(f_dict_df['Campaigns']['Id'])
+			'campaigns_id':set(f_dict_df['Campaigns']['Id'])
 		}
 	)
 
@@ -1893,7 +1894,8 @@ def _delete_files(**kwargs):
 		del_list.append(date_xcom.get('AdIds', None))
 		del_list.append(date_xcom.get('AdGroupIds', None))
 
-	del_cycle(del_list)
+	# testing
+	# del_cycle(del_list)
 
 
 def _extension_daily_budget(**kwargs):
@@ -1937,7 +1939,7 @@ def _extension_daily_budget(**kwargs):
 		kwargs['task_instance'].xcom_push(
 			key='update_file',
 			value={
-				'file_name': file_name
+				'file_name':file_name
 			}
 		)
 
@@ -1968,7 +1970,7 @@ def _get_ad_groups_id(**kwargs):
 		kwargs['task_instance'].xcom_push(
 			key='groups_id',
 			value={
-				'have_ad_groups_id': have_id
+				'have_ad_groups_id':have_id
 			}
 		)
 
@@ -1999,7 +2001,7 @@ def _get_ad_id(**kwargs):
 		kwargs['task_instance'].xcom_push(
 			key='ad_id',
 			value={
-				'have_ad_id': have_id
+				'have_ad_id':have_id
 			}
 		)
 
@@ -2085,7 +2087,7 @@ def _separate_audience_update_data(**kwargs):
 	url, headers, p = get_conf()
 	sql_tables = dict(Variable.get("SQL_Tables_Schema", deserialize_json=True))
 	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'audience_targets_update.get_audience_targets_update',
-									   key="AudienceTargets")
+	                                   key="AudienceTargets")
 	filename_set = date_xcom.get('file_name')
 	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'check_campaigns', key="checkCampaigns")
 	server_date_time = date_xcom.get('server_date_time')
@@ -2109,7 +2111,7 @@ def _separate_audience_update_data(**kwargs):
 def _add_audience_update_data_to_postgres(**kwargs):
 	url, headers, p = get_conf()
 	date_xcom = kwargs['ti'].xcom_pull(task_ids='audience_targets_update.separate_audience_update_data',
-									   key='audience_targets_update')
+	                                   key='audience_targets_update')
 	with open(f'{p}/{date_xcom.get("file_name")}', 'rb') as f:
 		dict_df = pickle.load(f)
 
@@ -2272,7 +2274,7 @@ def _separate_ad_extension_update_data(**kwargs):
 def _add_ad_extension_update_to_postgres(**kwargs):
 	url, headers, p = get_conf()
 	date_xcom = kwargs['ti'].xcom_pull(task_ids='ad_extension_update.separate_ad_extension_update_data',
-									   key='AdExtensions')
+	                                   key='AdExtensions')
 	with open(f'{p}/{date_xcom.get("file_name")}', 'rb') as f:
 		dict_df = pickle.load(f)
 
@@ -2352,7 +2354,7 @@ def _separate_site_links_set_update_data(**kwargs):
 def _add_site_links_set_update_to_postgres(**kwargs):
 	url, headers, p = get_conf()
 	date_xcom = kwargs['ti'].xcom_pull(task_ids='site_links_set_update.separate_site_links_set_update_data',
-									   key='SiteLinksSet')
+	                                   key='SiteLinksSet')
 	with open(f'{p}/{date_xcom.get("file_name")}', 'rb') as f:
 		dict_df = pickle.load(f)
 
@@ -2449,9 +2451,6 @@ def _update_dictionaries(**kwargs):
 			print(f'Нет изминений в: {key}')
 
 
-
-
-
 def _delete_first_upload_files(**kwargs):
 	del_list = list()
 
@@ -2468,7 +2467,7 @@ def _delete_first_upload_files(**kwargs):
 		del_list.append(date_xcom.get("file_name", None))
 
 	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'full_load.download_dict.separate_dictionaries',
-									   key="sep_dictionaries")
+	                                   key="sep_dictionaries")
 	if date_xcom is not None:
 		del_list.append(date_xcom.get("file_name", None))
 
@@ -2481,12 +2480,12 @@ def _delete_first_upload_files(**kwargs):
 		del_list.append(date_xcom.get("file_name", None))
 
 	date_xcom = kwargs['ti'].xcom_pull(task_ids=f'full_load.audience_targets.get_audience_targets',
-									   key="AudienceTargets")
+	                                   key="AudienceTargets")
 	if date_xcom is not None:
 		del_list.append(date_xcom.get("file_name", None))
 
 	date_xcom = kwargs['ti'].xcom_pull(task_ids='full_load.audience_targets.separate_audience_data',
-									   key='all_audience_targets')
+	                                   key='all_audience_targets')
 	if date_xcom is not None:
 		del_list.append(date_xcom.get("file_name", None))
 
@@ -2709,9 +2708,7 @@ def _create_pipeline(dag_, start_dt):
 		[download_dict, ad_extension, site_links] >> add_server_time_to_bd >> delete_first_upload_files
 
 	with TaskGroup("ch_campaigns", tooltip="Checking for changes in campaigns") as ch_campaigns:
-
 		with TaskGroup("update_data", tooltip="Update data") as update_data:
-
 			with TaskGroup("adgroup_update", tooltip="AdGroup update") as adgroup_update:
 				get_adgroup_update = PythonOperator(
 					task_id='get_adgroup_update',
@@ -2801,7 +2798,6 @@ def _create_pipeline(dag_, start_dt):
 			campaigns_update >> join_data >> delete_files
 
 		with TaskGroup("old_data", tooltip="Old data") as old_data:
-
 			extension_daily_budget = PythonOperator(
 				task_id='extension_daily_budget',
 				python_callable=_extension_daily_budget,
@@ -2828,8 +2824,7 @@ def _create_pipeline(dag_, start_dt):
 				python_callable=_update_server_time,
 				dag=dag_)
 
-
-			[extension_daily_budget, get_ad_groups_id, get_ad_id] >>  add_old_data >> update_server_time
+			[extension_daily_budget, get_ad_groups_id, get_ad_id] >> add_old_data >> update_server_time
 
 		# Код для функций обновления
 		python_sensor = PythonSensor(
@@ -2837,7 +2832,6 @@ def _create_pipeline(dag_, start_dt):
 			python_callable=_python_sensor,
 			mode='reschedule',
 			dag=dag_)
-
 
 		python_sensor >> [old_data, campaigns_update]
 		python_sensor >> update_data
